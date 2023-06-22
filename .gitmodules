@@ -1,0 +1,3 @@
+[submodule "GrapheneOS"]
+	path = GrapheneOS
+	url = git@github.com:GrapheneOS/kernel_manifest-5.15.git

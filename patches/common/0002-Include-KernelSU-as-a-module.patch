@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: js6pak <me@6pak.dev>
+Date: Thu, 22 Jun 2023 18:09:04 +0200
+Subject: [PATCH] Include KernelSU as a module
+
+
+diff --git a/build.config.gki b/build.config.gki
+index 4b931d9eb333121f8cc05c4b66228da5ce9d7b41..6e2f2a7028aa29f8c029830b93da9667e76212b4 100644
+--- a/build.config.gki
++++ b/build.config.gki
+@@ -1,2 +1,17 @@
+ DEFCONFIG=gki_defconfig
+-POST_DEFCONFIG_CMDS="check_defconfig"
++POST_DEFCONFIG_CMDS="check_defconfig && update_config"
++
++EXT_MODULES="
++modules/KernelSU/kernel
++"
++
++function update_config() {
++  ${KERNEL_DIR}/scripts/config --file ${OUT_DIR}/.config \
++    -e KPROBES \
++    -e HAVE_KPROBES \
++    -e KPROBE_EVENTS \
++    -m KSU
++
++  (cd ${OUT_DIR} && \
++    make O=${OUT_DIR} CLANG_TRIPLE=${CLANG_TRIPLE} CROSS_COMPILE=${CROSS_COMPILE} "${TOOL_ARGS[@]}" ${MAKE_ARGS} olddefconfig)
++}

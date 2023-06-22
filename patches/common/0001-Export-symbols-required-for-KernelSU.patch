@@ -1,0 +1,243 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: js6pak <me@6pak.dev>
+Date: Thu, 22 Jun 2023 18:08:12 +0200
+Subject: [PATCH] Export symbols required for KernelSU
+
+
+diff --git a/fs/namei.c b/fs/namei.c
+index 6e126d5cf62506d0b30d536be1b80a52b0121567..3d5c1319899f1ca8e8353694f9cc82e8e7b9502f 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -216,6 +216,7 @@ getname(const char __user * filename)
+ {
+ 	return getname_flags(filename, 0, NULL);
+ }
++EXPORT_SYMBOL_GPL(getname);
+ 
+ struct filename *
+ getname_kernel(const char * filename)
+@@ -269,6 +270,7 @@ void putname(struct filename *name)
+ 	} else
+ 		__putname(name);
+ }
++EXPORT_SYMBOL_GPL(putname);
+ 
+ /**
+  * check_acl - perform ACL permission checking
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 709ea097090fc9f0efbd7961ff20e14496963d87..382e1c750bb91b13197f14c217c12c5f18f6339b 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1763,6 +1763,7 @@ int path_umount(struct path *path, int flags)
+ 	mntput_no_expire(mnt);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(path_umount);
+ 
+ static int ksys_umount(char __user *name, int flags)
+ {
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index 0ba87982d017fc4acc1b58e6ed798fa769b00887..8757bf7bc760beeaea5985ef1a870bed838c7a67 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -203,6 +203,7 @@ unsigned long kallsyms_lookup_name(const char *name)
+ 	}
+ 	return module_kallsyms_lookup_name(name);
+ }
++EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
+ #ifdef CONFIG_LIVEPATCH
+ /*
+diff --git a/kernel/nsproxy.c b/kernel/nsproxy.c
+index eec72ca962e249c94266192b77a3c1f92ec8e889..232b289497ffbfadc8e39111e012b698e5eb4fd9 100644
+--- a/kernel/nsproxy.c
++++ b/kernel/nsproxy.c
+@@ -48,6 +48,7 @@ struct nsproxy init_nsproxy = {
+ 	.time_ns_for_children	= &init_time_ns,
+ #endif
+ };
++EXPORT_SYMBOL_GPL(init_nsproxy);
+ 
+ static inline struct nsproxy *create_nsproxy(void)
+ {
+diff --git a/mm/maccess.c b/mm/maccess.c
+index ded4bfaba7f370345909066fb1f9fe8ba8675454..7d49b37807540fd601b3a0c6fdc5970d3b48de5d 100644
+--- a/mm/maccess.c
++++ b/mm/maccess.c
+@@ -305,6 +305,7 @@ long strncpy_from_user_nofault(char *dst, const void __user *unsafe_addr,
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(strncpy_from_user_nofault);
+ 
+ /**
+  * strnlen_user_nofault: - Get the size of a user string INCLUDING final NUL.
+diff --git a/security/security.c b/security/security.c
+index 537f39c2b69b401e296c34624b52236a93546587..ff4f1e6b27052e696feac275d17aa185ba66da28 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -73,6 +73,7 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1] = {
+ };
+ 
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
++EXPORT_SYMBOL_GPL(security_hook_heads);
+ static BLOCKING_NOTIFIER_HEAD(blocking_lsm_notifier_chain);
+ 
+ static struct kmem_cache *lsm_file_cache;
+@@ -479,7 +480,7 @@ static int lsm_append(const char *new, char **result)
+  *
+  * Each LSM has to register its hooks with the infrastructure.
+  */
+-void __init security_add_hooks(struct security_hook_list *hooks, int count,
++void security_add_hooks(struct security_hook_list *hooks, int count,
+ 				char *lsm)
+ {
+ 	int i;
+@@ -498,6 +499,7 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 			panic("%s - Cannot get early memory.\n", __func__);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(security_add_hooks);
+ 
+ int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+ {
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index e0582fed12795c7fb44fa511e5166e0f9f142007..5c6cbbae1f736552fd0ad6e0111c9c4d5f852956 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -986,6 +986,7 @@ int avc_ss_reset(struct selinux_avc *avc, u32 seqno)
+ 	avc_latest_notif_update(avc, seqno, 0);
+ 	return rc;
+ }
++EXPORT_SYMBOL_GPL(avc_ss_reset);
+ 
+ /*
+  * Slow-path helper function for avc_has_perm_noaudit,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9e1e315b0ebe61a6e3d97d3093004059fe4ff659..a8c5407185da209769f32c8052ace28bcebbfbc8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -105,6 +105,7 @@
+ #include "avc_ss.h"
+ 
+ struct selinux_state selinux_state;
++EXPORT_SYMBOL_GPL(selinux_state);
+ 
+ /* SECMARK reference count */
+ static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
+@@ -7056,6 +7057,7 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_msg_msg = sizeof(struct msg_security_struct),
+ 	.lbs_superblock = sizeof(struct superblock_security_struct),
+ };
++EXPORT_SYMBOL_GPL(selinux_blob_sizes);
+ 
+ #ifdef CONFIG_PERF_EVENTS
+ static int selinux_perf_event_open(struct perf_event_attr *attr, int type)
+diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
+index 1760aee712fd2ef4ed805d6f0a9edffedd547e58..87f6762ea4b55c7f10066edda7c788f69f0aeb62 100644
+--- a/security/selinux/netlink.c
++++ b/security/selinux/netlink.c
+@@ -104,6 +104,7 @@ void selnl_notify_policyload(u32 seqno)
+ {
+ 	selnl_notify(SELNL_MSG_POLICYLOAD, &seqno);
+ }
++EXPORT_SYMBOL_GPL(selnl_notify_policyload);
+ 
+ static int __init selnl_init(void)
+ {
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index c97695ae508f1441cd8d8808ebad4c44adda6eaf..3b861af90be3383dc3b3efe1b2d2e57b78e70323 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -179,6 +179,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 	}
+ 	return avtab_insert_node(h, hvalue, prev, cur, key, datum);
+ }
++EXPORT_SYMBOL_GPL(avtab_insert_nonunique);
+ 
+ struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
+ {
+@@ -246,6 +247,7 @@ struct avtab_node *avtab_search_node(struct avtab *h,
+ 	}
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(avtab_search_node);
+ 
+ struct avtab_node*
+ avtab_search_node_next(struct avtab_node *node, int specified)
+@@ -275,6 +277,7 @@ avtab_search_node_next(struct avtab_node *node, int specified)
+ 	}
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(avtab_search_node_next);
+ 
+ void avtab_destroy(struct avtab *h)
+ {
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 61fcbb8d0f8808525d7cb87e10e53915c726544d..f391c61fd2da98eb6fce759769c66721b5372e82 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -274,6 +274,7 @@ int ebitmap_get_bit(struct ebitmap *e, unsigned long bit)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(ebitmap_get_bit);
+ 
+ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+ {
+@@ -342,6 +343,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(ebitmap_set_bit);
+ 
+ void ebitmap_destroy(struct ebitmap *e)
+ {
+diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
+index 298098bb9c06d52aa051eb360cb2c06ed2eb7f7c..2c1d87b4c79d38667734119740b2429b85442fc6 100644
+--- a/security/selinux/ss/hashtab.c
++++ b/security/selinux/ss/hashtab.c
+@@ -62,6 +62,7 @@ int __hashtab_insert(struct hashtab *h, struct hashtab_node **dst,
+ 	h->nel++;
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(__hashtab_insert);
+ 
+ void hashtab_destroy(struct hashtab *h)
+ {
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index ad91f52c825812cc150494081f579df57d1532e9..f934b8b8375c4d84fd88cbc1ac9acb1782e1b426 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -454,6 +454,7 @@ struct filename_trans_datum *policydb_filenametr_search(
+ {
+ 	return hashtab_search(&p->filename_trans, key, filenametr_key_params);
+ }
++EXPORT_SYMBOL_GPL(policydb_filenametr_search);
+ 
+ static u32 rangetr_hash(const void *k)
+ {
+diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
+index c42a6648a07df72bc428a317f7114696256f629b..2540b7da7512e9554a8f3d65eb042fd5e0224309 100644
+--- a/security/selinux/ss/symtab.c
++++ b/security/selinux/ss/symtab.c
+@@ -47,8 +47,10 @@ int symtab_insert(struct symtab *s, char *name, void *datum)
+ {
+ 	return hashtab_insert(&s->table, name, datum, symtab_key_params);
+ }
++EXPORT_SYMBOL_GPL(symtab_insert);
+ 
+ void *symtab_search(struct symtab *s, const char *name)
+ {
+ 	return hashtab_search(&s->table, name, symtab_key_params);
+ }
++EXPORT_SYMBOL_GPL(symtab_search);
+diff --git a/security/selinux/status.c b/security/selinux/status.c
+index 4bc8f809934c84deb6e72ceed8078d7782aa18fd..728fea98a6cfb4cb053369a0fc91bdedace23e30 100644
+--- a/security/selinux/status.c
++++ b/security/selinux/status.c
+@@ -122,3 +122,4 @@ void selinux_status_update_policyload(struct selinux_state *state,
+ 	}
+ 	mutex_unlock(&state->status_lock);
+ }
++EXPORT_SYMBOL_GPL(selinux_status_update_policyload);

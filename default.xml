@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <remote name="diamondaosp"
+          fetch="ssh://git@github.com/DiamondAOSP/"
+          revision="refs/heads/13" />
+
+  <include name="GrapheneOS/default.xml" />
+
+  <project path="tools/patcher" name="patcher" remote="diamondaosp">
+    <linkfile src="patcher.py" dest="patcher" />
+  </project>
+
+  <project path="modules/KernelSU" name="KernelSU" remote="diamondaosp" revision="refs/tags/v0.6.2-diamondaosp.1" />
+
+</manifest>
